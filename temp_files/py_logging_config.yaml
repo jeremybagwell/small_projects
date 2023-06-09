@@ -1,0 +1,86 @@
+version: 1
+disable_existing_loggers: true
+
+
+
+formatters:
+    simpleFormatter:
+        format: 'localhost stealthapp *MNAV[%(levelname)-5.5s][%(asctime)s][%(filename)-30s:%(lineno)s][%(message)s]'
+    simpleJsonFormatter:
+        format: 'localhost stealthapp *MNAVJ{"sev":"%(levelname)s","time":"%(asctime)s","loc":"%(filename)s:%(lineno)s","tid":"%(thread)d","info":%(message)s}'
+    newJsonFormatter:
+        # format: 'localhost stealthapp *MNAVJ{"sev":"%(levelname)s","time":"%(asctime)s","loc":"%(loc)s","tid":"%(thread)d","info":"%(message)s"}'
+        format: 'localhost stealthapp *MNAVJ{"sev":"%(levelname)s","time":"%(asctime)s","tid":"%(thread)d","info":"%(message)s"}'
+    fluentdFormatter:
+        format: "[%(levelname)-5.5s][%(asctime)s][%(filename)-30s:%(lineno)s][%(message)s]"
+    fluentdJsonFormatter:
+        format: '''{"sev":"%(levelname)s","time":"%(asctime)s","loc":"%(filename)s:%(lineno)s","tid":"%(thread)d","info":%(message)s}'''
+    debugFormatter:
+        format: '''%(message)s'''
+    custom:
+        format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    myCustomFormatter:
+        class: log.MnavFormatter
+
+handlers:
+    console:
+        class: logging.StreamHandler
+        level: DEBUG
+        formatter: custom
+        stream: ext://sys.stdout
+
+    console2:
+        class: logging.StreamHandler
+        level: DEBUG
+        formatter: myCustomFormatter
+        stream: ext://sys.stdout
+
+    SysLogHandler:
+        class: logging.handlers.SysLogHandler
+        level: INFO
+        formatter: simpleFormatter
+
+    SysLogJsonHandler:
+        class: logging.handlers.SysLogHandler
+        level: INFO
+        formatter: newJsonFormatter
+
+    SysLogHandler_FD1: #unresolved issues
+        class: logging.handlers.SysLogHandler
+        level: INFO
+        formatter: fluentdFormatter
+        address: [localhost, 5170]
+        socktype: ext://socket.SOCK_STREAM
+
+    SysLogHandler_FD2:
+        class: logging.handlers.SysLogHandler
+        level: INFO
+        formatter: fluentdJsonFormatter
+        address: [localhost, 5171]
+
+    SysLogHandler_FD3:
+        class: logging.handlers.SysLogHandler
+        level: INFO
+        formatter: fluentdJsonFormatter
+        address: [localhost, 51414]
+
+    SysLogHandler_FD4: #unresolved issues
+        class: logging.handlers.SysLogHandler
+        level: INFO
+        formatter: fluentdFormatter
+        address: [localhost, 51415]
+        socktype: ext://socket.SOCK_STREAM
+
+
+root:
+    level: NOTSET
+    handlers: []
+    propogate: yes
+
+loggers:
+    mnavLogger:
+        level: INFO
+        handlers: [console2, SysLogHandler, SysLogJsonHandler, SysLogHandler_FD1, SysLogHandler_FD2, SysLogHandler_FD3, SysLogHandler_FD4]
+        propogate: false
+
+#    console, console, 
